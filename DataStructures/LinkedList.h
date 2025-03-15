@@ -1,20 +1,20 @@
 #pragma once
 #include "Node.h"
+#include <math.h>
 
 template<typename T>
 class LinkedList
 {
 public:
+
 	LinkedList() 
 		: head(nullptr), tail(nullptr), length(0)
 	{
 	}
-
 	~LinkedList()
 	{
 		Clear();
 	}
-
 
 	void AddStart(T _data)
 	{
@@ -75,6 +75,7 @@ public:
 			}
 		}
 	}
+	
 	void RemoveStart()
 	{
 		if (length > 1)
@@ -147,19 +148,54 @@ public:
 		{
 			throw ("Invalid Index");
 		}
-		Node<T>* node = head;
-		for (unsigned short i = 0; i < length; i++)
+
+		Node<T>* node = nullptr;
+		unsigned short i;
+		short dir;
+		
+		unsigned short cacheDiff = abs(cachedIndex - _index);
+		unsigned short tailDiff = abs(length - _index);
+
+		if (cacheDiff < _index 
+			&& cachedIndex < tailDiff
+			&& cached != nullptr)
+		{
+			node = cached;
+			i = cachedIndex;
+			dir = cachedIndex > _index ? -1 : 1;
+		}
+		else if (tailDiff < _index)
+		{
+			node = tail;
+			i = length - 1;
+			dir = -1;
+		}
+		else
+		{
+			node = head;
+			i = 0;
+			dir = 1;
+		}
+
+		for (; i < length; i += (1 * dir))
 		{
 			if (i == _index)
 			{
+				cached = node;
+				cachedIndex = i;
 				return node->data;
 			}
 			else
 			{
-				node = node->next;
+				node = dir > 0 ? node->next : node->prev;
 			}
 		}
 	}
+	T& operator[](unsigned short index)
+	{
+		return GetAt(index);
+	}
+
 	bool Exist(T _data)
 	{
 		Node<T>* node = head;
@@ -191,8 +227,7 @@ public:
 			}
 		}
 		return -1;
-	}
-	
+	}	
 	void Count()
 	{
 		return length;
@@ -201,5 +236,7 @@ public:
 private:
 	Node<T>* head;
 	Node<T>* tail;
+	Node<T>* cached;
+	unsigned short cachedIndex;
 	unsigned short length;
 };
